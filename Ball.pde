@@ -78,7 +78,8 @@ class Ball {
 
   boolean done() {
     Vec2 pos = box2d.getBodyPixelCoord(b);
-    if (pos.y>(height+32) || delete) {
+    if (pos.y>(height+32) || pos.x>(width+32) || pos.x<(0-32) ||
+    pos.y<(0-32) || delete) {
       killBody();
       return true;
     }

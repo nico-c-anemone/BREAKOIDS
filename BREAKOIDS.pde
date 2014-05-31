@@ -25,6 +25,9 @@ final short MASK_ROCK = CATEGORY_PIT| CATEGORY_ROCK| CATEGORY_WALL | CATEGORY_BA
 final short MASK_WALL = CATEGORY_ROCK|CATEGORY_BALL;
 final short MASK_BALL = CATEGORY_WALL | CATEGORY_ROCK | CATEGORY_PADDLE;
 
+final float GRAVITY_STRENGTH = 750;
+
+final int INITIAL_LIVES = 3;
 
 // GLOBAL GAME VARIABLES
 boolean in_game;
@@ -33,6 +36,7 @@ int score;
 int high_score;
 boolean title_sound_triggered;
 int stage;
+int lives;
 
 // GUI
 boolean reset_down=false;
@@ -231,7 +235,7 @@ void draw () {
     for (int i = balls.size ()-1; i >= 0; i--) {
       Ball ball = balls.get(i);
       if (attractor) {
-        Vec2 force = thePaddle.attract(ball);
+        Vec2 force = thePaddle.attract(ball, GRAVITY_STRENGTH);
         ball.applyForce(force);
       }
       ball.render();
@@ -245,8 +249,10 @@ void draw () {
 
     rockQueue.popRocks();
 
-    if (balls.size ()<1) {
-      gameOver();
+    int ball_size = balls.size();
+    
+    if (ball_size<1) {
+      loseLife();
     }
 
     if (rocks.size ()<1) {
@@ -255,6 +261,9 @@ void draw () {
     colorMode(RGB, 255);
     tint(255, 255);
     write ("Stage:"+stage, 16, 16, 1.0, 0.6);
+    
+    drawLives();
+
     
     if ((millis()-startTime>2000)&&(millis()-startTime<10000)) {
          colorMode(RGB, 255);
@@ -419,14 +428,12 @@ void startGame() {
   in_game=true;
   rockQueue.wipe();
   newStage();
-
-  balls.add(new Ball(halfWidth, 25));
-
-  for (Ball ball : balls) {
-    ball.initialize();
-  }
+ 
+  lives=INITIAL_LIVES;
   
   startTime=millis();
+  
+  addBall();
 }
 
 void beginContact(Contact cp) {
@@ -497,4 +504,44 @@ void setIcon() {
   pg.endDraw();
 
   frame.setIconImage(pg.image);
+}
+
+void loseLife() {
+  begin_sound.trigger(); 
+  lives--;
+   if (lives<1) {
+     gameOver();
+   } else {
+     addBall();
+   }
+   
+}
+
+void addBall() {
+  balls.add(new Ball(halfWidth, 25));
+
+  for (Ball ball : balls) {
+    ball.initialize();
+  }
+}
+
+void drawLives() {
+  for (int i=lives-1;i>0;i--)
+ {
+    float x=width-(32*i)-8;
+    float y=24;
+    colorMode(RGB, 255);
+    tint(255, 255); 
+    beginShape(QUADS);
+    texture(ball_image);
+    // upperleft
+    vertex(x, y, 0, 0);
+    // upper right
+    vertex(x+16, y, 16, 0);
+    // lower right
+    vertex(x+16, y+16, 16, 16);
+    // lower left
+    vertex(x, y+16, 0, 16);
+    endShape();
+ } 
 }

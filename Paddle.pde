@@ -52,8 +52,7 @@ class Paddle {
     b.setLinearVelocity(v);
   } 
 
-  Vec2 attract(Ball ball) {
-    float G = 500.0; // strenth of attraction force
+  Vec2 attract(Ball ball, float magnitude) {
     Vec2 pos = b.getWorldCenter(); // location of paddle
     Vec2 ballPos = ball.b.getWorldCenter(); // location of ball
     // vector pointing from from ball to paddle 
@@ -64,7 +63,7 @@ class Paddle {
     // normalize force vector
     force.normalize();
     // calculate magnitude of strength using 1 as mass for paddle since it is a KINETIC body.
-    float strength = (G * 1 * ball.b.m_mass) / (distance * distance);
+    float strength = (magnitude * 1 * ball.b.m_mass) / (distance * distance);
     // multiply force vector by strength scalar
     force.mulLocal(strength);
     // return calculated force vector
